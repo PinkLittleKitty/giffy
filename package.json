@@ -1,0 +1,12 @@
+{
+  "name": "gif-maker",
+  "version": "1.0.0",
+  "description": "Simple GIF maker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

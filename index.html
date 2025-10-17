@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Se pronuncia Gif, no Jif</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Se pronuncia Gif, no Jif</h1>
+            <button id="themeToggle" class="theme-toggle">🌙</button>
+        </header>
+
+        <section class="upload-section">
+            <h2>Subí imágenes</h2>
+            <div class="drop-zone" id="dropZone">
+                <p>Droppealas o clickeá para subirlas</p>
+                <input type="file" id="fileInput" multiple accept="image/*" hidden>
+            </div>
+        </section>
+
+        <section class="controls-section">
+            <h2>Opciones</h2>
+            <div class="controls">
+                <label>
+                    Duración de frames:
+                    <input type="number" id="frameDuration" value="500" min="50" max="5000" step="50"> ms
+                </label>
+                <div>Total: <span id="totalDuration">0ms</span></div>
+                <button id="generateBtn" disabled>Hacer GIF</button>
+            </div>
+        </section>
+
+        <section class="timeline-section">
+            <h2>Timeline</h2>
+            <div class="timeline" id="timeline">
+                <p>Añadir imágenes a la timeline</p>
+            </div>
+        </section>
+
+        <section class="preview-section">
+            <h2>Preview</h2>
+            <div class="preview-container" id="previewContainer">
+                <p>Tu GIF va a aparecer acá</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>Hecho con ❤️ para los que pronuncian bien "GIF"</p>
+        </footer>
+    </div>
+
+    <script src="gif.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
