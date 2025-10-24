@@ -30,6 +30,20 @@
                     Duración de frames:
                     <input type="number" id="frameDuration" value="500" min="50" max="5000" step="50"> ms
                 </label>
+                <div id="sizeContainer">
+                    <label>
+                        Ancho: <input type="number" id="customWidth" value="400" min="50" max="2000" step="10"> px
+                    </label>
+                    <label>
+                        Alto: <input type="number" id="customHeight" value="400" min="50" max="2000" step="10"> px
+                    </label>
+                    <p id="sizeInfo" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 5px;">
+                        Subí imágenes para detectar el tamaño automáticamente
+                    </p>
+                </div>
+                <label>
+                    <input type="checkbox" id="transparentGreen"> Hacer verde transparente
+                </label>
                 <div>Total: <span id="totalDuration">0ms</span></div>
                 <button id="generateBtn" disabled>Hacer GIF</button>
             </div>
