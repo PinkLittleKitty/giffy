@@ -7,6 +7,13 @@ echo "==========================================="
 echo ""
 
 if ! command -v node >/dev/null 2>&1; then
+    [ -s "$HOME/.nvm/nvm.sh" ] && \. "$HOME/.nvm/nvm.sh" 2>/dev/null || true
+    [ -s "$HOME/.bashrc" ] && source "$HOME/.bashrc" 2>/dev/null || true
+    [ -s "$HOME/.zshrc" ] && source "$HOME/.zshrc" 2>/dev/null || true
+    export PATH="/usr/local/bin:/opt/homebrew/bin:$HOME/.nvm/versions/node/$(ls -1 "$HOME/.nvm/versions/node" 2>/dev/null | tail -n 1)/bin:$PATH"
+fi
+
+if ! command -v node >/dev/null 2>&1; then
     echo "Error: Node.js no está instalado o no se encuentra en el PATH."
     echo "Por favor instalá Node.js desde https://nodejs.org/"
     exit 1

@@ -1,6 +1,5 @@
 @echo off
 title Se pronuncia GIF, no JIF
-chcp 65001 >nul
 cls
 
 echo ===========================================
@@ -11,8 +10,20 @@ echo.
 
 where node >nul 2>nul
 if %errorlevel% neq 0 (
+    if exist "%ProgramFiles%\nodejs\node.exe" (
+        set "PATH=%ProgramFiles%\nodejs;%PATH%"
+    ) else if exist "%ProgramFiles(x86)%\nodejs\node.exe" (
+        set "PATH=%ProgramFiles(x86)%\nodejs;%PATH%"
+    ) else if exist "%LOCALAPPDATA%\Programs\nodejs\node.exe" (
+        set "PATH=%LOCALAPPDATA%\Programs\nodejs;%PATH%"
+    )
+)
+
+where node >nul 2>nul
+if %errorlevel% neq 0 (
     echo [ERROR] Node.js no esta instalado o no se encuentra en el PATH.
-    echo Por favor instala Node.js desde https://nodejs.org/
+    echo Si acabas de instalar Node.js, por favor reinicia la computadora.
+    echo Descargalo desde: https://nodejs.org/
     echo.
     pause
     exit /b 1
@@ -34,7 +45,7 @@ echo   Servidor corriendo en http://localhost:3000
 echo   Apreta Control + C para cerrarlo
 echo ===========================================
 echo.
-echo Ahí te abrí el navegador...
+echo Ahi te abri el navegador...
 echo.
 
 :wait
