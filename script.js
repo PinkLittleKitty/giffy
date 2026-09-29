@@ -27,7 +27,7 @@ class GifMaker {
     initTheme() {
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
-        this.themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        this.updateThemeIcon(savedTheme);
     }
 
     toggleTheme() {
@@ -35,7 +35,14 @@ class GifMaker {
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
-        this.themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        this.updateThemeIcon(newTheme);
+    }
+
+    updateThemeIcon(theme) {
+        this.themeToggle.innerHTML = theme === 'dark'
+            ? '<i data-lucide="sun"></i>'
+            : '<i data-lucide="moon"></i>';
+        if (window.lucide) window.lucide.createIcons();
     }
 
     bindEvents() {
@@ -161,17 +168,17 @@ class GifMaker {
                  data-frame-index="${index}">
                 <div class="frame-number">${index + 1}</div>
                 <img src="${frame.dataUrl}" alt="${frame.name}">
-                <button class="remove-btn" onclick="gifMaker.removeFrame('${frame.id}')">&times;</button>
+                <button class="remove-btn" onclick="gifMaker.removeFrame('${frame.id}')" title="Eliminar"><i data-lucide="x"></i></button>
             </div>
         `).join('');
 
         const controlsHtml = `
             <div class="timeline-controls">
                 <button class="timeline-btn" onclick="gifMaker.reverseFrames()" ${this.frames.length < 2 ? 'disabled' : ''}>
-                    🔄 Invertir orden
+                    <i data-lucide="arrow-left-right"></i> Invertir orden
                 </button>
                 <button class="timeline-btn" onclick="gifMaker.clearAllFrames()" ${this.frames.length === 0 ? 'disabled' : ''}>
-                    🗑️ Limpiar todo
+                    <i data-lucide="trash-2"></i> Limpiar todo
                 </button>
             </div>
         `;
@@ -180,6 +187,8 @@ class GifMaker {
             <div class="timeline-frames">${framesHtml}</div>
             ${controlsHtml}
         `;
+
+        if (window.lucide) window.lucide.createIcons();
 
         // Add drag and drop event listeners
         this.addDragAndDropListeners();
@@ -378,40 +387,50 @@ class GifMaker {
         const downloadBtn = document.createElement('a');
         downloadBtn.href = url;
         downloadBtn.download = 'gifChoto.gif';
-        downloadBtn.textContent = '⬇️ Descargar GIF';
+        downloadBtn.innerHTML = '<i data-lucide="download"></i> Descargar GIF';
+        downloadBtn.className = 'btn-download-preview';
         downloadBtn.style.cssText = `
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             margin-top: 20px;
             padding: 12px 24px;
             background: var(--success-bg);
             color: white;
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: 6px;
             font-weight: bold;
             font-size: 16px;
         `;
 
         const info = document.createElement('p');
-        info.textContent = `✅ GIF creado correctamente! Dimensiones: ${this.gifWidth}x${this.gifHeight}px | Tamaño: ${(blob.size / 1024).toFixed(1)}KB`;
+        info.innerHTML = `<i data-lucide="check-circle" style="vertical-align: middle; margin-right: 4px;"></i> GIF creado correctamente! Dimensiones: ${this.gifWidth}x${this.gifHeight}px | Tamaño: ${(blob.size / 1024).toFixed(1)}KB`;
         info.style.cssText = `
             margin-top: 15px;
             color: var(--success-bg);
             font-weight: bold;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         `;
 
         const newBtn = document.createElement('button');
-        newBtn.textContent = '🔄 Hacer otro GIF';
+        newBtn.innerHTML = '<i data-lucide="rotate-ccw"></i> Hacer otro GIF';
         newBtn.style.cssText = `
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             margin: 15px 0 0 15px;
             padding: 12px 24px;
             background: var(--button-bg);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 16px;
         `;
         newBtn.onclick = () => {
             this.frames = [];
@@ -436,6 +455,7 @@ class GifMaker {
 
         this.previewContainer.appendChild(buttonContainer);
         this.previewContainer.appendChild(info);
+        if (window.lucide) window.lucide.createIcons();
     }
 
     showLoading() {
@@ -449,11 +469,60 @@ class GifMaker {
 
     showError(message) {
         this.previewContainer.innerHTML = `
-            <p style="color: var(--error-color); text-align: center; padding: 20px;">
-                ❌ ${message}
+            <p style="color: var(--error-color); text-align: center; padding: 20px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i data-lucide="alert-circle"></i> ${message}
             </p>
         `;
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    async loadFramesFromExtractor(extractedFrames) {
+        this.frames = [];
+        for (let i = 0; i < extractedFrames.length; i++) {
+            const ef = extractedFrames[i];
+            const img = new Image();
+            await new Promise((res) => {
+                img.onload = res;
+                img.src = ef.dataUrl;
+            });
+
+            this.frames.push({
+                id: `extractor-${i}-${Date.now()}`,
+                image: img,
+                dataUrl: ef.dataUrl,
+                name: `frame_${(i + 1).toString().padStart(3, '0')}.png`
+            });
+
+            if (i === 0) {
+                this.autoDetectSize(img);
+                if (ef.delay) {
+                    this.frameDuration = ef.delay;
+                    this.frameDurationInput.value = ef.delay;
+                }
+            }
+        }
+        this.updateUI();
     }
 }
 
 const gifMaker = new GifMaker();
+
+document.addEventListener('DOMContentLoaded', () => {
+    const tabBtns = document.querySelectorAll('.app-tab-btn');
+    const tabViews = document.querySelectorAll('.app-tab-view');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.dataset.target;
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabViews.forEach(v => v.classList.remove('active'));
+
+            btn.classList.add('active');
+            const targetView = document.getElementById(targetId);
+            if (targetView) targetView.classList.add('active');
+            if (window.lucide) window.lucide.createIcons();
+        });
+    });
+
+    if (window.lucide) window.lucide.createIcons();
+});

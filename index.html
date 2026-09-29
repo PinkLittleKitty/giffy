@@ -1,75 +1,353 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Se pronuncia Gif, no Jif</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="lucide.min.js"></script>
 </head>
 
 <body>
     <div class="container">
         <header>
-            <h1>Se pronuncia Gif, no Jif</h1>
-            <button id="themeToggle" class="theme-toggle">🌙</button>
+            <div class="header-content">
+                <h1>Se pronuncia Gif, no Jif</h1>
+                <p class="tagline">Herramienta para crear GIFs y extraer frames de videos o GIFs</p>
+            </div>
+            <button id="themeToggle" class="theme-toggle" title="Alternar tema claro/oscuro">
+                <i data-lucide="moon"></i>
+            </button>
         </header>
 
-        <section class="upload-section">
-            <h2>Subí imágenes</h2>
-            <div class="drop-zone" id="dropZone">
-                <p>Droppealas o clickeá para subirlas</p>
-                <input type="file" id="fileInput" multiple accept="image/*" hidden>
-            </div>
-        </section>
+        <nav class="app-nav">
+            <button class="app-tab-btn active" id="tabGifMaker" data-target="gifMakerView">
+                <span class="tab-icon"><i data-lucide="clapperboard"></i></span>
+                <span class="tab-label">Creador de GIF</span>
+            </button>
+            <button class="app-tab-btn" id="tabFrameExtractor" data-target="frameExtractorView">
+                <span class="tab-icon"><i data-lucide="film"></i></span>
+                <span class="tab-label">Extractor de Frames</span>
+            </button>
+        </nav>
 
-        <section class="controls-section">
-            <h2>Opciones</h2>
-            <div class="controls">
-                <label>
-                    Duración de frames:
-                    <input type="number" id="frameDuration" value="500" min="50" max="5000" step="50"> ms
-                </label>
-                <div id="sizeContainer">
+        <div id="gifMakerView" class="app-tab-view active">
+            <section class="upload-section">
+                <h2>Subí imágenes</h2>
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-zone-icon"><i data-lucide="images"></i></div>
+                    <p class="drop-zone-title">Droppealas o clickeá para subirlas</p>
+                    <p class="drop-zone-hint">Soporta PNG, JPG, WebP y más</p>
+                    <input type="file" id="fileInput" multiple accept="image/*" hidden>
+                </div>
+            </section>
+
+            <section class="controls-section">
+                <h2>Opciones del GIF</h2>
+                <div class="controls">
                     <label>
-                        Ancho: <input type="number" id="customWidth" value="400" min="50" max="2000" step="10"> px
+                        Duración de frames:
+                        <input type="number" id="frameDuration" value="500" min="50" max="5000" step="50"> ms
                     </label>
-                    <label>
-                        Alto: <input type="number" id="customHeight" value="400" min="50" max="2000" step="10"> px
+                    <div id="sizeContainer">
+                        <label>
+                            Ancho: <input type="number" id="customWidth" value="400" min="50" max="2000" step="10"> px
+                        </label>
+                        <label>
+                            Alto: <input type="number" id="customHeight" value="400" min="50" max="2000" step="10"> px
+                        </label>
+                        <p id="sizeInfo" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 5px;">
+                            Subí imágenes para detectar el tamaño automáticamente
+                        </p>
+                    </div>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="transparentGreen"> Hacer verde transparente
                     </label>
-                    <p id="sizeInfo" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 5px;">
-                        Subí imágenes para detectar el tamaño automáticamente
+                    <div class="total-duration-display">Total: <span id="totalDuration">0ms</span></div>
+                    <button id="generateBtn" disabled>
+                        <i data-lucide="clapperboard"></i> Hacer GIF
+                    </button>
+                </div>
+            </section>
+
+            <section class="timeline-section">
+                <h2>Timeline</h2>
+                <div class="timeline" id="timeline">
+                    <p>Añadí imágenes para ver la timeline</p>
+                </div>
+            </section>
+
+            <section class="preview-section">
+                <h2>Preview</h2>
+                <div class="preview-container" id="previewContainer">
+                    <p>Tu GIF va a aparecer acá</p>
+                </div>
+            </section>
+        </div>
+
+        <div id="frameExtractorView" class="app-tab-view">
+            <section class="extractor-upload-section">
+                <h2>Subí un Video o GIF</h2>
+                <div class="drop-zone extractor-drop-zone" id="extractorDropZone">
+                    <div class="drop-zone-icon"><i data-lucide="video"></i></div>
+                    <p class="drop-zone-title">Arrastrá un Video o GIF acá o hacé click</p>
+                    <p class="drop-zone-hint">Formatos soportados: MP4, WebM, MOV, MKV o archivo .GIF</p>
+                    <input type="file" id="extractorFileInput" accept="video/*,.gif,image/gif" hidden>
+                </div>
+
+                <div class="file-info-banner" id="extractorFileInfo" style="display: none;">
+                    <div class="file-info-details">
+                        <span class="file-info-icon"><i data-lucide="file-video"></i></span>
+                        <div>
+                            <div class="file-name" id="extractorFileName">archivo.mp4</div>
+                            <div class="file-details" id="extractorFileDetails">Cargando información...</div>
+                        </div>
+                    </div>
+                    <button class="btn-secondary" id="extractorChangeFileBtn">
+                        <i data-lucide="refresh-cw"></i> Cambiar archivo
+                    </button>
+                </div>
+            </section>
+
+            <section class="extractor-options-section" id="extractorOptionsSection" style="display: none;">
+                <h2>Configuración de extracción</h2>
+
+                <div id="videoExtractorSettings" class="settings-group">
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <label for="extractorVideoFps">Tasa de captura (FPS):</label>
+                            <input type="number" id="extractorVideoFps" value="15" min="1" max="60" step="1">
+                            <span class="setting-hint">15 o 24 fps para fluidez, 5-10 para menos frames</span>
+                        </div>
+                        <div class="setting-item">
+                            <label for="extractorMaxFrames">Límite máx. de frames:</label>
+                            <input type="number" id="extractorMaxFrames" value="300" min="10" max="2000" step="10">
+                            <span class="setting-hint">Evita saturar la memoria en videos largos</span>
+                        </div>
+                    </div>
+
+                    <div class="range-settings-row" id="videoTimeRangeContainer">
+                        <div class="range-inputs">
+                            <label>Rango de tiempo:</label>
+                            <span>Desde:</span>
+                            <input type="number" id="extractorStartTime" value="0" min="0" step="0.5"> s
+                            <span>Hasta:</span>
+                            <input type="number" id="extractorEndTime" value="0" min="0" step="0.5"> s
+                            <span id="extractorVideoDuration" class="setting-hint"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="gifExtractorSettings" class="settings-group" style="display: none;">
+                    <p id="gifFrameCountInfo" class="gif-info-message">
+                        Se extraerán todos los frames nativos del GIF respetando su paleta y transparencia.
                     </p>
                 </div>
-                <label>
-                    <input type="checkbox" id="transparentGreen"> Hacer verde transparente
-                </label>
-                <div>Total: <span id="totalDuration">0ms</span></div>
-                <button id="generateBtn" disabled>Hacer GIF</button>
-            </div>
-        </section>
 
-        <section class="timeline-section">
-            <h2>Timeline</h2>
-            <div class="timeline" id="timeline">
-                <p>Añadir imágenes a la timeline</p>
-            </div>
-        </section>
+                <div class="duplicate-settings-card">
+                    <div class="card-header">
+                        <h3><i data-lucide="scan-search"></i> Detección automática de frames duplicados</h3>
+                    </div>
+                    <div class="card-body">
+                        <label class="checkbox-label highlight-checkbox">
+                            <input type="checkbox" id="extractorAutoDetectDupes" checked>
+                            <strong>Detectar y marcar frames iguales o duplicados</strong>
+                        </label>
 
-        <section class="preview-section">
-            <h2>Preview</h2>
-            <div class="preview-container" id="previewContainer">
-                <p>Tu GIF va a aparecer acá</p>
-            </div>
-        </section>
+                        <div class="dupe-controls-row">
+                            <div class="setting-item">
+                                <label for="extractorDupeSensitivity">Sensibilidad de similitud:</label>
+                                <select id="extractorDupeSensitivity">
+                                    <option value="99.99">Exacto (100% píxeles idénticos)</option>
+                                    <option value="99" selected>Muy alta (≥ 99% - recomendado para video/GIF)</option>
+                                    <option value="98">Alta (≥ 98%)</option>
+                                    <option value="95">Media (≥ 95% - detecta variaciones leves)</option>
+                                </select>
+                            </div>
 
-        <footer>
-            <p>Hecho con ❤️ para los que pronuncian bien "GIF"</p>
-        </footer>
+                            <div class="setting-item">
+                                <label for="extractorDupeScope">Ámbito de comparación:</label>
+                                <select id="extractorDupeScope">
+                                    <option value="all" selected>Con todos los frames anteriores (animaciones/loops)
+                                    </option>
+                                    <option value="consecutive">Solo frames consecutivos (frames estáticos seguidos)
+                                    </option>
+                                </select>
+                            </div>
+
+                            <button type="button" class="btn-secondary dupe-recalc-btn"
+                                id="extractorRecalculateDupesBtn"
+                                title="Vuelve a calcular los duplicados con los valores seleccionados">
+                                <i data-lucide="refresh-cw"></i> Recalcular
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="start-action-container">
+                    <button id="extractorStartBtn" class="btn-primary-large">
+                        <i data-lucide="play"></i> Comenzar Extracción
+                    </button>
+                </div>
+            </section>
+
+            <section class="extractor-progress-section" id="extractorProgressSection" style="display: none;">
+                <h2>Extrayendo frames...</h2>
+                <div class="progress-container">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="extractorProgressBar" style="width: 0%;"></div>
+                    </div>
+                    <div class="progress-info-row">
+                        <span id="extractorProgressText">Preparando...</span>
+                        <button class="btn-cancel" id="extractorCancelBtn">
+                            <i data-lucide="square"></i> Cancelar
+                        </button>
+                    </div>
+                    <div class="progress-thumb-wrapper">
+                        <img id="extractorProgressPreview" src="" alt="Frame en proceso">
+                    </div>
+                </div>
+            </section>
+
+            <section class="extractor-results-section" id="extractorResultsSection" style="display: none;">
+                <div class="stats-summary-bar">
+                    <div class="stat-pill">
+                        <span class="stat-label">Total de frames:</span>
+                        <strong class="stat-val" id="extractorTotalCount">0</strong>
+                    </div>
+                    <div class="stat-pill highlight">
+                        <span class="stat-label">Seleccionados:</span>
+                        <strong class="stat-val" id="extractorSelectedCount">0 / 0</strong>
+                    </div>
+                    <div class="stat-pill warning">
+                        <span class="stat-label">Duplicados detectados:</span>
+                        <strong class="stat-val" id="extractorDuplicateCount">0</strong>
+                    </div>
+                </div>
+
+                <div class="extractor-toolbar">
+                    <div class="toolbar-group">
+                        <button class="tool-btn" id="extractorSelectAllBtn" title="Seleccionar todos los frames">
+                            <i data-lucide="check-square"></i> Todos
+                        </button>
+                        <button class="tool-btn" id="extractorDeselectAllBtn" title="Deseleccionar todos">
+                            <i data-lucide="square"></i> Ninguno
+                        </button>
+                        <button class="tool-btn" id="extractorInvertSelectBtn" title="Invertir la selección actual">
+                            <i data-lucide="arrow-left-right"></i> Invertir
+                        </button>
+                        <button class="tool-btn btn-warning" id="extractorDeselectDupesBtn"
+                            title="Deselecciona automáticamente los frames que son copias iguales">
+                            <i data-lucide="sparkles"></i> Deseleccionar duplicados
+                        </button>
+                    </div>
+
+                    <div class="toolbar-group">
+                        <label class="sample-label">
+                            Muestreo:
+                            <select id="extractorSampleRateSelect">
+                                <option value="">Seleccionar cada...</option>
+                                <option value="2">Cada 2 frames (1/2)</option>
+                                <option value="3">Cada 3 frames (1/3)</option>
+                                <option value="4">Cada 4 frames (1/4)</option>
+                                <option value="5">Cada 5 frames (1/5)</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="extractor-filters-bar">
+                    <button class="extractor-filter-tab active" data-filter="all">Todos</button>
+                    <button class="extractor-filter-tab" data-filter="selected">Solo seleccionados</button>
+                    <button class="extractor-filter-tab" data-filter="unique">Solo únicos</button>
+                    <button class="extractor-filter-tab" data-filter="duplicates">Solo duplicados</button>
+                </div>
+
+                <div class="extractor-grid" id="extractorGrid">
+                </div>
+
+                <div class="extractor-export-card">
+                    <h3><i data-lucide="archive"></i> Descargar Frames Seleccionados</h3>
+                    <div class="export-controls-row">
+                        <div class="setting-item">
+                            <label for="extractorExportFormat">Formato de imagen:</label>
+                            <select id="extractorExportFormat">
+                                <option value="png" selected>PNG (Sin pérdida / Transparencia)</option>
+                                <option value="jpeg">JPEG (Comprimido / Menor peso)</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-item" id="extractorJpegQualityGroup" style="display: none;">
+                            <label for="extractorJpegQuality">Calidad JPEG (<span
+                                    id="extractorJpegQualityVal">90%</span>):</label>
+                            <input type="range" id="extractorJpegQuality" min="40" max="100" value="90" step="5">
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="extractorFilenamePrefix">Prefijo de archivos:</label>
+                            <input type="text" id="extractorFilenamePrefix" value="frame_" style="width: 100px;">
+                        </div>
+                    </div>
+
+                    <div class="export-actions-row">
+                        <button class="btn-download-zip" id="extractorDownloadZipBtn">
+                            <i data-lucide="download"></i> Descargar ZIP con frames seleccionados
+                        </button>
+                        <button class="btn-send-gif" id="extractorSendToGifMakerBtn"
+                            title="Envía los frames seleccionados a la timeline del Creador de GIF">
+                            <i data-lucide="wand-2"></i> Enviar al Creador de GIF
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="lightbox-modal" id="extractorLightbox" style="display: none;">
+            <div class="lightbox-dialog">
+                <div class="lightbox-header">
+                    <h3 id="extractorLightboxTitle">Frame #001</h3>
+                    <button class="lightbox-close" id="extractorLightboxClose" title="Cerrar">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+                <div class="lightbox-body">
+                    <div class="lightbox-views-container">
+                        <div class="lightbox-view-main">
+                            <img id="extractorLightboxImg" src="" alt="Frame ampliado">
+                        </div>
+                        <div class="lightbox-compare-wrapper" id="extractorLightboxCompareWrapper"
+                            style="display: none;">
+                            <div class="compare-title" id="extractorLightboxCompareTitle">Frame Original</div>
+                            <img id="extractorLightboxCompareImg" src="" alt="Frame original de comparación">
+                        </div>
+                    </div>
+                    <div class="lightbox-meta">
+                        <p id="extractorLightboxDetails">Resolución: 400x400px</p>
+                        <button id="extractorLightboxToggle" class="btn-toggle-select">
+                            <i data-lucide="check"></i> Frame Seleccionado
+                        </button>
+                    </div>
+                </div>
+                <div class="lightbox-footer">
+                    <button class="btn-nav" id="extractorLightboxPrev" title="Frame anterior (Tecla flecha izquierda)">
+                        <i data-lucide="chevron-left"></i> Anterior
+                    </button>
+                    <span class="lightbox-nav-hint">Podés navegar con las flechas del teclado (← / →) y Espacio</span>
+                    <button class="btn-nav" id="extractorLightboxNext" title="Frame siguiente (Tecla flecha derecha)">
+                        Siguiente <i data-lucide="chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- Scripts -->
     <script src="gif.min.js"></script>
+    <script src="omggif.js"></script>
+    <script src="jszip.min.js"></script>
     <script src="script.js"></script>
+    <script src="frame-extractor.js"></script>
 </body>
 
 </html>

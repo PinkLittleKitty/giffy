@@ -1,27 +1,42 @@
 @echo off
-echo Se pronuncia gif btw
-echo.
-echo El server va a abrirse y te va a abrir el navegador
-echo Apretá Control + C para cerrarlo
+title Se pronuncia GIF, no JIF
+chcp 65001 >nul
+cls
+
+echo ===========================================
+echo   Se pronuncia GIF, no JIF
+echo   Creador y Extractor de Frames
+echo ===========================================
 echo.
 
-REM Start the server in background
+where node >nul 2>nul
+if %errorlevel% neq 0 (
+    echo [ERROR] Node.js no esta instalado o no se encuentra en el PATH.
+    echo Por favor instala Node.js desde https://nodejs.org/
+    echo.
+    pause
+    exit /b 1
+)
+
+cd /d "%~dp0"
+
+echo Iniciando el servidor local...
 start /B node server.js
 
-REM Wait a moment for server to start
 timeout /t 2 /nobreak >nul
 
-REM Open browser
+echo Abriendo tu navegador en http://localhost:3000 ...
 start http://localhost:3000
 
-REM Keep the window open to show server logs
 echo.
-echo ✅ Ahí te abrí el navegador...
+echo ===========================================
+echo   Servidor corriendo en http://localhost:3000
+echo   Apreta Control + C para cerrarlo
+echo ===========================================
 echo.
-echo Logs:
-echo ============
+echo Ahí te abrí el navegador...
+echo.
 
-REM Wait for the background server process
 :wait
 timeout /t 1 >nul
 goto wait
